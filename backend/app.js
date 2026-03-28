@@ -7,6 +7,7 @@ import argon2 from 'argon2';
 
 // Custom functions 
 import { geminiService } from "./gemini.js";
+import { authService } from "./authService.js";
 import pool from "./db.js";
 
 
@@ -18,11 +19,26 @@ const app = express();
 app.use(express.json());
 
 let testing = "Testing string works. App.get works";
-const response = await pool.query("SELECT * FROM users");
 
 // GET - Retrieve test string
-app.get ('/api/test', (req, res) => {
-    res.json(response);
+app.get ('/', (req, res) => {
+    res.send('backend works');
+});
+
+app.get ('/api/test',  (req, res) => {
+    try {
+        // Supposed to get user object back 
+        const user = authService.loginUser('apple', 'apple123');
+
+        if (!user)
+        console.log(user);
+        res.json(user);
+        res.end()
+        
+    } catch (err) {
+
+        console.error("Error fetching user", err);
+    }
 });
 
 // Listen on port 3000
