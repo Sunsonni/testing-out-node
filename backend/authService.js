@@ -7,6 +7,8 @@ import { Client } from "pg";
 async function hashPassword(password) {
     try {
         const hash = await argon2.hash(password);
+        return hash;
+        
     } catch (err) {
         console.error(`Error hashing password.`)
     }
@@ -19,6 +21,14 @@ async function loginUser(validator, password) {
         const query = `SELECT * FROM users WHERE email = $1 OR username = $1`;
         const values = [validator];
         const result = await client.query(query, values);
+        const user = result.rows[0];
+        if (!user) {
+            return null;
+        }
+
+        // TODO: verify hash with password given if wrong then return failure message, 
+        const verified = await argon2.verify(result.rows[0].password_hash, password);
+        // TODO: make into jwt token
         return result.rows;
         
     } catch (err) {

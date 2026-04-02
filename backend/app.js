@@ -25,19 +25,21 @@ app.get ('/', (req, res) => {
     res.send('backend works');
 });
 
-app.get ('/api/test',  (req, res) => {
+app.get ('/api/test', async (req, res) => {
     try {
         // Supposed to get user object back 
-        const user = authService.loginUser('apple', 'apple123');
+        const user = await authService.loginUser('apple', 'apple123');
 
-        if (!user)
         console.log(user);
-        res.json(user);
-        res.end()
+        if (!user) {
+            console.error("Error logging in user.");
+            return res.status(401).send('Unauthorized access');
+        } 
+        return res.status(200).json(user);
         
     } catch (err) {
-
         console.error("Error fetching user", err);
+        return res.status(500).send("Server error");
     }
 });
 
